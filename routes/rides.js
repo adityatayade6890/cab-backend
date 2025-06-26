@@ -89,7 +89,7 @@ router.post('/', async (req, res) => {
     res.json({ success: true, fare, billNumber, rideId }); // ✅ send rideId to frontend
 
   } catch (err) {
-    console.error('🔥 Server error:', err.message);
+    console.error('🔥 FULL SERVER ERROR:', err); // 👈 Log full error, not just err.message
     res.status(500).json({ success: false, error: 'Server error: ' + err.message });
   }
 });
