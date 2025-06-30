@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
       order_by,
       used_by,
       trip_details,
-      car_id,
+      car_id, // will store full string like 'Dzire MH14LB8443'
       package_qty,
       package_rate,
       extra_km_qty,
@@ -78,10 +78,9 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT b.*, c.vehicle_number, c.owner_name, c.model_name
-      FROM bills b
-      LEFT JOIN cars c ON b.car_id = c.id
-      ORDER BY b.created_at DESC
+      SELECT *
+      FROM bills
+      ORDER BY created_at DESC
     `);
     res.json(result.rows);
   } catch (err) {
@@ -90,7 +89,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ GET: Cars for Dropdown
+// ✅ GET: Cars for Dropdown (optional, no longer required if using manual dropdown)
 router.get('/cars', async (req, res) => {
   try {
     const result = await db.query('SELECT id, vehicle_number, model_name, owner_name FROM cars ORDER BY vehicle_number');
