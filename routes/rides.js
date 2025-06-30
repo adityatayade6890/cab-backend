@@ -4,13 +4,34 @@ const db = require('../db');
 
 // ✅ Helper: Generate Next Invoice No.
 
-async function generateInvoiceNumber() {
-  const result = await db.query('SELECT COUNT(*) FROM bills');
+async function generateInvoiceNumber(usedBy, car, invoiceDate) {
+  const year = new Date(invoiceDate).getFullYear();
+
+  // Short form of used_by → First char of first name + Last name
+  const usedByParts = usedBy.trim().toUpperCase().split(' ');
+  const shortUsedBy = usedByParts.length >= 2
+    ? usedByParts[0][0] + usedByParts[1]
+    : usedByParts[0];
+
+  // Split car into model and vehicle number
+  const carParts = car.trim().split(' ');
+  const carModel = carParts[0].toUpperCase();
+  const carNumber = carParts[1]?.toUpperCase() || 'XXXX';
+  const carNumberLast4 = carNumber.slice(-4);
+
+  // Format date as YYYYMMDD
+  const formattedDate = invoiceDate.replace(/-/g, '');
+
+  // Count how many bills already exist for same user + car + date
+  const result = await db.query(
+    `SELECT COUNT(*) FROM bills WHERE used_by = $1 AND car = $2 AND invoice_date = $3`,
+    [usedBy, car, invoiceDate]
+  );
+
   const count = parseInt(result.rows[0].count, 10) + 1;
-  const number = count.toString().padStart(4, '0');
-  const year = new Date().getFullYear();
- // const model = await db.query('SELECT car FROM bills');
-  return `INV-${year}-${number}`;
+  const paddedCount = count.toString().padStart(4, '0');
+
+  return `INV-${carModel}-${carNumberLast4}-${formattedDate}-${paddedCount}`;
 }
 
 // ✅ POST: Create New Bill
@@ -43,7 +64,7 @@ router.post('/', async (req, res) => {
       parseFloat(toll || 0) +
       parseFloat(driver_allowance || 0);
 
-    const invoice_number = await generateInvoiceNumber();
+    const invoice_number = await generateInvoiceNumber(car,invoice_date);
 
     const result = await client.query(`
       INSERT INTO bills (
