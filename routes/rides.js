@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
       order_by,
       used_by,
       trip_details,
-      car_id, // will store full string like 'Dzire MH14LB8443'
+      car,
       package_qty,
       package_rate,
       extra_km_qty,
@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
 
     const result = await client.query(`
       INSERT INTO bills (
-        invoice_number, invoice_date, order_by, used_by, trip_details, car_id,
+        invoice_number, invoice_date, order_by, used_by, trip_details, car,
         package_qty, package_rate,
         extra_km_qty, extra_km_rate,
         extra_time_qty, extra_time_rate,
@@ -56,7 +56,7 @@ router.post('/', async (req, res) => {
         $13,$14,$15
       ) RETURNING id, invoice_number
     `, [
-      invoice_number, invoice_date, order_by, used_by, trip_details, car_id,
+      invoice_number, invoice_date, order_by, used_by, trip_details, car,
       package_qty, package_rate,
       extra_km_qty, extra_km_rate,
       extra_time_qty, extra_time_rate,
