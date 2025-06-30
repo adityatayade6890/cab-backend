@@ -8,7 +8,7 @@ async function generateInvoiceNumber() {
   const count = parseInt(result.rows[0].count, 10) + 1;
   const number = count.toString().padStart(4, '0');
   const year = new Date().getFullYear();
-  return `INV-${year}-${number}`;
+  return `INV-${year}-${used_by}-${number}`;
 }
 
 // ✅ POST: Create New Bill
