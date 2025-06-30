@@ -49,7 +49,7 @@ router.post('/', async (req, res) => {
         package_qty, package_rate,
         extra_km_qty, extra_km_rate,
         extra_time_qty, extra_time_rate,
-        toll, driver_allowance, total_amount
+        toll, driver_allowance, total
       ) VALUES (
         $1,$2,$3,$4,$5,$6,
         $7,$8,$9,$10,$11,$12,
