@@ -3,22 +3,14 @@ const router = express.Router();
 const db = require('../db');
 
 // ✅ Helper: Generate Next Invoice No.
-async function generateInvoiceNumber(usedBy) {
-  const year = new Date().getFullYear();
 
-  // Normalize and sanitize used_by (remove spaces, special chars, make uppercase)
-  const sanitizedUser = usedBy.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-
-  // Count how many bills are there for this user in this year
-  const result = await db.query(
-    'SELECT COUNT(*) FROM bills WHERE used_by = $1 AND EXTRACT(YEAR FROM created_at) = $2',
-    [usedBy, year]
-  );
-
+async function generateInvoiceNumber() {
+  const result = await db.query('SELECT COUNT(*) FROM bills');
   const count = parseInt(result.rows[0].count, 10) + 1;
-  const paddedCount = count.toString().padStart(4, '0');
-
-  return `INV-${sanitizedUser}-${year}-${paddedCount}`;
+  const number = count.toString().padStart(4, '0');
+  const year = new Date().getFullYear();
+  const model = await db.query('SELECT car FROM bills');
+  return `INV-${year}-${number}-${model}`;
 }
 
 // ✅ POST: Create New Bill
