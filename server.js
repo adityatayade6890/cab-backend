@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/api/bills', require('./routes/bills'));
+app.use('/api/bills', require('./routes/rides'));
 
 app.get('/', (req, res) => {
   res.send('Cab Booking Backend Running!');
