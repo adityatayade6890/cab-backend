@@ -90,14 +90,14 @@ router.get('/', async (req, res) => {
 });
 
 // ✅ GET: Cars for Dropdown (optional, no longer required if using manual dropdown)
-router.get('/cars', async (req, res) => {
-  try {
-    const result = await db.query('SELECT id, vehicle_number, model_name, owner_name FROM cars ORDER BY vehicle_number');
-    res.json(result.rows);
-  } catch (err) {
-    console.error('🔥 Error fetching cars:', err);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
-  }
-});
+// router.get('/cars', async (req, res) => {
+//   try {
+//     const result = await db.query('SELECT id, vehicle_number, model_name, owner_name FROM cars ORDER BY vehicle_number');
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error('🔥 Error fetching cars:', err);
+//     res.status(500).json({ success: false, error: 'Internal Server Error' });
+//   }
+// });
 
 module.exports = router;
