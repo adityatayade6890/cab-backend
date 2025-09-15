@@ -2,31 +2,19 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// ✅ Helper: Generate Next Invoice No.
-
-async function generateInvoiceNumber(usedBy, car, invoiceDate) {
-  const year = new Date(invoiceDate).getFullYear();
-
-  // Short form of used_by → First char of first name + Last name
-  const usedByParts = usedBy.trim().toUpperCase().split(' ');
-  const shortUsedBy = usedByParts.length >= 2
-    ? usedByParts[0][0] + usedByParts[1]
-    : usedByParts[0];
-  // Split car into model and vehicle number
+// ✅ Helper: Generate Invoice Number Using Sequence
+async function generateInvoiceNumber(car, invoiceDate) {
   const carParts = car.trim().split(' ');
-  const carModel = carParts[0].toUpperCase();
+  const carModel = carParts[0]?.toUpperCase() || 'CAR';
   const carNumber = carParts[1]?.toUpperCase() || 'XXXX';
   const carNumberLast4 = carNumber.slice(-4);
-  // Format date as YYYYMMDD
   const formattedDate = invoiceDate.replace(/-/g, '');
-  // Count how many bills already exist for same user + car + date
-  const result = await db.query(
-    `SELECT COUNT(*) FROM bills WHERE used_by = $1 AND car = $2 AND invoice_date = $3`,
-    [usedBy, car, invoiceDate]
-  );
-  const count = parseInt(result.rows[0].count, 10) + 1;
-  const paddedCount = count.toString().padStart(4, '0');
-  return `INV-${carModel}-${carNumberLast4}-${formattedDate}-${paddedCount}`;
+
+  // Use database sequence for unique counter
+  const seqResult = await db.query(`SELECT nextval('invoice_seq') AS seq`);
+  const seq = String(seqResult.rows[0].seq).padStart(4, '0');
+
+  return `INV-${carModel}-${carNumberLast4}-${formattedDate}-${seq}`;
 }
 
 // ✅ POST: Create New Bill
@@ -59,7 +47,8 @@ router.post('/', async (req, res) => {
       parseFloat(toll || 0) +
       parseFloat(driver_allowance || 0);
 
-    const invoice_number = await generateInvoiceNumber(used_by,car,invoice_date);
+    // ✅ Generate invoice number using sequence
+    const invoice_number = await generateInvoiceNumber(car, invoice_date);
 
     const result = await client.query(`
       INSERT INTO bills (
@@ -83,6 +72,7 @@ router.post('/', async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ success: true, invoice_number: result.rows[0].invoice_number });
+
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Bill insert failed:', err);
@@ -106,16 +96,5 @@ router.get('/', async (req, res) => {
     res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
-
-// ✅ GET: Cars for Dropdown (optional, no longer required if using manual dropdown)
-// router.get('/cars', async (req, res) => {
-//   try {
-//     const result = await db.query('SELECT id, vehicle_number, model_name, owner_name FROM cars ORDER BY vehicle_number');
-//     res.json(result.rows);
-//   } catch (err) {
-//     console.error('🔥 Error fetching cars:', err);
-//     res.status(500).json({ success: false, error: 'Internal Server Error' });
-//   }
-// });
 
 module.exports = router;
