@@ -25,6 +25,7 @@ router.post('/', async (req, res) => {
 
     const {
       invoice_date,
+      useDate,
       order_by,
       used_by,
       trip_details,
@@ -52,7 +53,7 @@ router.post('/', async (req, res) => {
 
     const result = await client.query(`
       INSERT INTO bills (
-        invoice_number, invoice_date, order_by, used_by, trip_details, car,
+        invoice_number, invoice_date, use_date, order_by, used_by, trip_details, car,
         package_qty, package_rate,
         extra_km_qty, extra_km_rate,
         extra_time_qty, extra_time_rate,
@@ -63,7 +64,7 @@ router.post('/', async (req, res) => {
         $13,$14,$15
       ) RETURNING id, invoice_number
     `, [
-      invoice_number, invoice_date, order_by, used_by, trip_details, car,
+      invoice_number, invoice_date, use_date, order_by, used_by, trip_details, car,
       package_qty, package_rate,
       extra_km_qty, extra_km_rate,
       extra_time_qty, extra_time_rate,
