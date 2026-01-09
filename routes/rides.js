@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
 
     const {
       invoice_date,
-      useDate,
+      use_date,
       order_by,
       used_by,
       trip_details,
