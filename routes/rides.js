@@ -14,7 +14,7 @@ async function generateInvoiceNumber(car, invoiceDate) {
   const seqResult = await db.query(`SELECT nextval('invoice_seq') AS seq`);
   const seq = String(seqResult.rows[0].seq).padStart(4, '0');
 
-  return `INV-${carModel}-${carNumberLast4}-${formattedDate}-${seq}`;
+  return `INV-${carModel}-${carNumberLast4}-${seq}`;
 }
 
 // ✅ POST: Create New Bill
